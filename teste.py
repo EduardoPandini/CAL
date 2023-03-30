@@ -1,100 +1,109 @@
 import time
-import random
 import matplotlib.pyplot as plt
+import numpy as np
 
-def insertion_sort(arr):
-    for i in range(1, len(arr)):
-        key = arr[i]
-        j = i - 1
-        while j >= 0 and key < arr[j]:
-            arr[j + 1] = arr[j]
+# Função para gerar lista aleatória
+def gerar_lista(tamanho):
+    return list(np.random.randint(0, 1000, tamanho))
+
+# Função para o algoritmo Insertion Sort
+def insertion_sort(lista):
+    for i in range(1, len(lista)):
+        chave = lista[i]
+        j = i-1
+        while j >= 0 and chave < lista[j]:
+            lista[j+1] = lista[j]
             j -= 1
-        arr[j + 1] = key
+        lista[j+1] = chave
 
-def bubble_sort(arr):
-    n = len(arr)
+# Função para o algoritmo Bubble Sort
+def bubble_sort(lista):
+    n = len(lista)
     for i in range(n):
-        for j in range(n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+        for j in range(0, n-i-1):
+            if lista[j] > lista[j+1]:
+                lista[j], lista[j+1] = lista[j+1], lista[j]
 
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    else:
-        pivot = arr[0]
-        left = []
-        right = []
-        for i in range(1, len(arr)):
-            if arr[i] < pivot:
-                left.append(arr[i])
-            else:
-                right.append(arr[i])
-        return quick_sort(left) + [pivot] + quick_sort(right)
-
-def merge_sort(arr):
-    if len(arr) > 1:
-        mid = len(arr) // 2
-        left = arr[:mid]
-        right = arr[mid:]
-
-        merge_sort(left)
-        merge_sort(right)
-
-        i = j = k = 0
-
-        while i < len(left) and j < len(right):
-            if left[i] < right[j]:
-                arr[k] = left[i]
-                i += 1
-            else:
-                arr[k] = right[j]
-                j += 1
-            k += 1
-
-        while i < len(left):
-            arr[k] = left[i]
-            i += 1
-            k += 1
-
-        while j < len(right):
-            arr[k] = right[j]
-            j += 1
-            k += 1
-
-def generate_random_array(n):
-    return [random.randint(1, 100) for _ in range(n)]
-
-def time_function(func, arr):
-    start = time.time()
-    func(arr)
-    end = time.time()
-    return end - start
-
-def compare_sort_algorithms():
-    insertion_times = []
-    bubble_times = []
-    quick_times = []
-    merge_times = []
-
-    for i in range(100, 1100, 100):
-        arr = generate_random_array(i)
-        insertion_times.append(time_function(insertion_sort, arr))
-        bubble_times.append(time_function(bubble_sort, arr))
-        quick_times.append(time_function(quick_sort, arr))
-        merge_times.append(time_function(merge_sort, arr))
-
-    n_values = range(100, 1100, 100)
-
-    plt.plot(n_values, insertion_times, label='Insertion Sort')
-    plt.plot(n_values, bubble_times, label='Bubble Sort')
-    plt.plot(n_values, quick_times, label='QuickSort')
-    plt.plot(n_values, merge_times, label='MergeSort')
-
-    plt.xlabel('Tamanho do array')
-    plt.ylabel('Tempo (s)')
-    plt.title('Comparação de algoritmos de ordenação')
+# Função para comparar os algoritmos
+def comparar_algoritmos(tamanhos, repeticoes):
+    tempos_insertion_sort = []
+    tempos_bubble_sort = []
+    for tamanho in tamanhos:
+        lista = gerar_lista(tamanho)
+        tempo_total_insertion_sort = 0
+        tempo_total_bubble_sort = 0
+        for _ in range(repeticoes):
+            # Executa o algoritmo Insertion Sort
+            lista_copia = lista.copy()
+            inicio = time.time()
+            insertion_sort(lista_copia)
+            fim = time.time()
+            tempo_total_insertion_sort += fim - inicio
+            
+            # Executa o algoritmo Bubble Sort
+            lista_copia = lista.copy()
+            inicio = time.time()
+            bubble_sort(lista_copia)
+            fim = time.time()
+            tempo_total_bubble_sort += fim - inicio
+            
+        # Calcula a média dos tempos
+        media_insertion_sort = tempo_total_insertion_sort / repeticoes
+        media_bubble_sort = tempo_total_bubble_sort / repeticoes
+        
+        tempos_insertion_sort.append(media_insertion_sort)
+        tempos_bubble_sort.append(media_bubble_sort)
+        
+    # Plota o gráfico comparando os tempos
+    plt.plot(tamanhos, tempos_insertion_sort, label='Insertion Sort')
+    plt.plot(tamanhos, tempos_bubble_sort, label='Bubble Sort')
     plt.legend()
+    plt.title('Comparação de complexidade - Insertion Sort x Bubble Sort')
+    plt.xlabel('Tamanho da lista')
+    plt.ylabel('Tempo (s)')
     plt.show()
 
-compare_sort_algorithms()
+# Testando a função comparar_algoritmos
+tamanhos = [10, 100, 1000, 10000]
+repeticoes = 5
+comparar_algoritmos(tamanhos, repeticoes)
+
+def heap_sort(arr):
+    n = len(arr)
+    for i in range(n, -1, -1):
+        heapify(arr, n, i)
+    for i in range(n-1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+
+def heapify(arr, n, i):
+    largest = i
+    l = 2 * i + 1
+    r = 2 * i + 2
+    if l < n and arr[i] < arr[l]:
+        largest = l
+    if r < n and arr[largest] < arr[r]:
+        largest = r
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)
+
+def linear_search(arr, x):
+    for i in range(len(arr)):
+        if arr[i] == x:
+            return i
+    return -1
+
+def binary_search(arr, x):
+    low = 0
+    high = len(arr) - 1
+    mid = 0
+    while low <= high:
+        mid = (high + low) // 2
+        if arr[mid] < x:
+            low = mid + 1
+        elif arr[mid] > x:
+            high = mid - 1
+        else:
+            return mid
+    return -1
