@@ -1,25 +1,30 @@
-import time
 import random
+import time
 import matplotlib.pyplot as plt
 
-def heapify(arr, n, i):
-    largest = i
-    l = 2 * i + 1
-    r = 2 * i + 2
-    if l < n and arr[i] < arr[l]:
-        largest = l
-    if r < n and arr[largest] < arr[r]:
-        largest = r
-    if largest != i:
-        arr[i], arr[largest] = arr[largest], arr[i]
-        heapify(arr, n, largest)
-
 def heap_sort(arr):
+    def heapify(arr, n, i):
+        largest = i
+        l = 2 * i + 1
+        r = 2 * i + 2
+
+        if l < n and arr[largest] < arr[l]:
+            largest = l
+
+        if r < n and arr[largest] < arr[r]:
+            largest = r
+
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            heapify(arr, n, largest)
+
     n = len(arr)
+
     for i in range(n // 2 - 1, -1, -1):
         heapify(arr, n, i)
+
     for i in range(n - 1, 0, -1):
-        arr[0], arr[i] = arr[i], arr[0]
+        arr[i], arr[0] = arr[0], arr[i]
         heapify(arr, i, 0)
 
 def linear_search(arr, x):
@@ -31,9 +36,8 @@ def linear_search(arr, x):
 def binary_search(arr, x):
     low = 0
     high = len(arr) - 1
-    mid = 0
     while low <= high:
-        mid = (high + low) // 2
+        mid = (low + high) // 2
         if arr[mid] < x:
             low = mid + 1
         elif arr[mid] > x:
@@ -42,35 +46,40 @@ def binary_search(arr, x):
             return mid
     return -1
 
-# gerando dados aleatórios para os testes
-n = 10000
-arr = [random.randint(1, 100000) for _ in range(n)]
-x = random.randint(1, 100000)
+# Gerando listas aleatórias de diferentes tamanhos
+sizes = [100, 1000, 10000, 100000, 1000000]
+arrays = []
+for size in sizes:
+    arrays.append(random.sample(range(size * 10), size))
 
-# medindo o tempo de execução do Heap Sort
-start = time.time()
-heap_sort(arr)
-end = time.time()
-heap_sort_time = end - start
+# Medindo o tempo de execução dos algoritmos para cada lista
+heap_sort_times = []
+linear_search_times = []
+binary_search_times = []
+for arr in arrays:
+    start = time.time()
+    heap_sort(arr)
+    end = time.time()
+    heap_sort_times.append(end - start)
 
-# medindo o tempo de execução da Busca Linear
-start = time.time()
-linear_search(arr, x)
-end = time.time()
-linear_search_time = end - start
+    x = random.randint(0, size * 10)
+    start = time.time()
+    linear_search(arr, x)
+    end = time.time()
+    linear_search_times.append(end - start)
 
-# medindo o tempo de execução da Busca Binária
-start = time.time()
-binary_search(arr, x)
-end = time.time()
-binary_search_time = end - start
+    arr.sort()
+    x = random.randint(0, size * 10)
+    start = time.time()
+    binary_search(arr, x)
+    end = time.time()
+    binary_search_times.append(end - start)
 
-# gerando o gráfico de linhas
-x_axis = ['Heap Sort', 'Busca Linear', 'Busca Binária']
-y_axis = [heap_sort_time, linear_search_time, binary_search_time]
-
-plt.plot(x_axis, y_axis)
-plt.xlabel('Algoritmo')
+# Plotando os resultados
+plt.plot(sizes, heap_sort_times, label='Heap Sort')
+plt.plot(sizes, linear_search_times, label='Busca Linear')
+plt.plot(sizes, binary_search_times, label='Busca Binária')
+plt.xlabel('Tamanho da entrada')
 plt.ylabel('Tempo de execução (s)')
-plt.title('Comparação de complexidade')
+plt.legend()
 plt.show()
